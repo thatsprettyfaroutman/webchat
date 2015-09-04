@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+  <title>Kissin Chat</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<style media="screen">
+
+		html, body {
+			margin : 0;
+			width : 100%;
+			padding : 0;
+		}
+
+		form {
+			display : block;
+			padding : 0;
+			margin : 0;
+		}
+
+		input {
+			float : left;
+			display : block;
+			padding : 10px;
+			width : 80%;
+			height : 40px;
+			line-height : 20px;
+			margin : 0;
+			box-sizing : border-box;
+			border : none;
+			border-bottom : 1px solid #ccc;
+			font-size : 18px;
+			font-family : sans-serif;
+		}
+
+		input:focus {
+			outline : none;
+		}
+
+		button {
+			display : block;
+			float : left;
+			padding : 10px;
+			box-sizing : border-box;
+			width : 20%;
+			height : 40px;
+			border : none;
+			background-color : #0bf;
+			color : #fff;
+			font-size : 18px;
+			font-family : sans-serif;
+		}
+
+		ul {
+			display : block;
+			box-sizing : border-box;
+			float : left;
+			width : 100%;
+			height : calc(100% - 40px);
+			padding : 0;
+			margin : 0;
+		}
+
+		li {
+			list-style : none;
+			border-bottom : 1px solid #ccc;
+			padding : 10px;
+			line-height: 20px;
+			font-family : sans-serif;
+			font-size : 18px;
+		}
+
+		li.self {
+			color : #0bf;
+		}
+
+		.connections {
+			position : absolute;
+			display : block;
+			bottom : 0;
+			right : 0;
+			width : 40px;
+			height : 40px;
+			background-color : #000;
+			color : #fff;
+			text-align : center;
+			line-height : 40px;
+			font-family : sans-serif;
+		}
+
+		.hidden {
+			display : none;
+		}
+
+	</style>
+</head>
+<body>
+
+	<form method="post" class="name">
+		<input type="text" name="message" value="" placeholder="Name">
+		<button type="submit" name="button">Use</button>
+	</form>
+
+	<form method="post" class="message hidden">
+		<input type="text" name="message" value="" placeholder="Message">
+		<button type="submit" name="button">send</button>
+	</form>
+
+	<ul class="messages">
+
+	</ul>
+
+	<div class="connections">0</div>
+
+	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="web/main.js"></script>
+
+</body>
+</html>
