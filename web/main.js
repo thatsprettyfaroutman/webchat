@@ -2,21 +2,12 @@
 
 	var socket = null;
 	var user = '';
+	var handshakeOrSomething = null;
 
 	$('form.name').submit(function () {
 		var $input = $(this).find('input').first();
-		user = $input.val();
-
-		if (user.trim() !== '') {
-			$(this).addClass('hidden');
-			$('form.message')
-				.removeClass('hidden');
-			connect();
-		}
-
+		tryName($input.val().trim());
 		return false;
-
-		console.log(user);
 	});
 
 	$('form.message').submit(function() {
@@ -30,32 +21,60 @@
 			return false;
 		}
 
-    socket.emit('message', {
-			user : user,
-			message : $input.val()
-		});
+    socket.emit('message', $input.val().trim());
     $input.val('');
     return false;
   });
 
+	function tryName(name) {
+		user = name.trim();
+
+		$.ajax({
+			url : '/checkuser/' + encodeURI(user),
+			dataType : 'json',
+			type : 'GET'
+		}).then(function (res) {
+			if (res && res.data && res.data.sum !== false) {
+				handshakeOrSomething = res.data;
+				connect();
+			} else {
+				console.log('username taken');
+				$('ul.messages')
+					.prepend('<li><span class="message message--alert">Name taken</span></li>');
+			}
+		});
+
+		return false;
+	}
 
 	function connect() {
 		socket = io();
 
+		$('form.name').remove();
+		$('form.message').removeClass('hidden');
+
 		socket.on('connect', function () {
-			console.log('user connected');
-			socket.emit('joined', user);
+			checkConnection.call(socket);
 			$('form.message').find('input').first().focus();
 		});
 
 		socket.on('disconnect', function(){
-			console.log('user disconnected');
-			alert('disconnecteeed');
+			$('ul.messages')
+				.empty()
+				.prepend('<li><span class="message message--alert">DISCONNECTED! Reconnecting in five seconds</span></li>');
+			socket = null;
+
+			setTimeout(function () {
+				window.location = '/';
+			}, 5000);
+			// reconnectLoop();
+
+			// alert('What are you doing? DISCONNECTIING!');
 		});
 
 		socket.on('message', function (msg) {
 			var $message = $('<li />');
-			$message.html(msg.message);
+			$message.html(buildMessage(msg));
 
 			if (msg.user == user) {
 				$message.addClass('self');
@@ -64,16 +83,27 @@
 			$('ul.messages').prepend($message);
 		});
 
-		socket.on('connections amount', function(amount) {
-			$('.connections').html(amount);
+		// socket.on('connections amount', function(amount) {
+		// 	$('.connections').html(amount);
+		// });
+
+		socket.on('active users', function (users) {
+			$users = $('ul.users');
+			$users.empty();
+			$.each(users.sort(), function () {
+				$users.append('<li>' + this + '</li>');
+			});
+			$users.prepend('<li class="count">' + users.length + ' active users</li>');
 		});
 
 		socket.on('message history', function (msgs) {
 			var $messages = $('ul.messages');
 			$messages.empty();
 			$.each(msgs, function() {
+
+				console.log(this);
 				var $message = $('<li/>');
-				$message.html(this.user + ' : ' + this.message);
+				$message.html(buildMessage(this));
 
 				if (this.user == user) {
 					$message.addClass('self');
@@ -84,6 +114,44 @@
 		});
 
 	}
+
+	function checkConnection() {
+		var socket = this;
+		socket.emit('check connection', handshakeOrSomething);
+	}
+
+	function reconnectLoop() {
+		if (!socket) {
+			tryName(user);
+			setTimeout(reconnectLoop, 5000);
+		}
+	}
+
+	function buildMessage(msg) {
+		var time = new Date(msg.time);
+		var hours = time.getHours();
+		var minutes = time.getMinutes();
+		var message = '';
+
+		if (('' + hours).length == 1) {
+			hours = '0'+hours;
+		}
+
+		if (('' + minutes).length == 1) {
+			minutes = '0'+minutes;
+		}
+
+		message += '<time>' + hours + '.' + minutes + '</time>';
+		message += '<span class="user">' + msg.user + '</span>';
+		message += '<span class="message">' + msg.message + '</span>';
+
+		return message;
+	}
+
+
+	$(function () {
+		$('form.name input').first().focus();
+	});
 
 
 }());
