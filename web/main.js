@@ -61,12 +61,12 @@
 		socket.on('disconnect', function(){
 			$('ul.messages')
 				.empty()
-				.prepend('<li><span class="message message--alert">DISCONNECTED! Reconnecting in five seconds</span></li>');
+				.prepend('<li><span class="message message--alert">DISCONNECTED! Reconnecting in ten seconds</span></li>');
 			socket = null;
 
 			setTimeout(function () {
 				window.location = '/';
-			}, 5000);
+			}, 10000);
 			// reconnectLoop();
 
 			// alert('What are you doing? DISCONNECTIING!');

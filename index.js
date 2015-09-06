@@ -62,6 +62,7 @@ io.on('connection', function(socket){
 	socket.on('check connection', function (conn) {
 		var actualConn = false;
 		var connOk = false;
+		var joinMsg = {};
 		reservedNames.map(function(name) {
 			if (name.name == conn.name && name.sum == conn.sum) {
 				connOk = true;
@@ -75,6 +76,14 @@ io.on('connection', function(socket){
 			actualConn.id = socket.conn.id;
 			userNames.push(actualConn);
 			uniqueConnections();
+
+			joinMsg.message =  '<strong>' + actualConn.name + ' joined!</strong>';
+			joinMsg.time = new Date().getTime();
+			joinMsg.user = actualConn.name;
+
+			messageHistory.push(joinMsg);
+			io.emit('message', joinMsg);
+
 		}
 
 	});
